@@ -1,5 +1,6 @@
-idf_component_register(
-    INCLUDE_DIRS .
-    SRCS rc522.c
-    REQUIRES esp_event driver
-)
+# The following five lines of boilerplate have to be in your project's
+# CMakeLists in this exact order for cmake to work correctly
+cmake_minimum_required(VERSION 3.5)
+
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(esp-ids-rfc522-demo)

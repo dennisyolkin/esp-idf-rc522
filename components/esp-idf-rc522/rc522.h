@@ -10,13 +10,6 @@ extern "C" {
 
 #define RC522_I2C_ADDRESS (0x28)
 
-#define RC522_DEFAULT_SCAN_INTERVAL_MS (125)
-#define RC522_DEFAULT_TASK_STACK_SIZE (4 * 1024)
-#define RC522_DEFAULT_TASK_STACK_PRIORITY (4)
-#define RC522_DEFAULT_SPI_CLOCK_SPEED_HZ (5000000)
-#define RC522_DEFAULT_I2C_RW_TIMEOUT_MS (1000)
-#define RC522_DEFAULT_I2C_CLOCK_SPEED_HZ (100000)
-
 ESP_EVENT_DECLARE_BASE(RC522_EVENTS);
 
 typedef struct rc522* rc522_handle_t;
@@ -40,13 +33,7 @@ typedef struct {
             int sda_gpio;
             int clock_speed_hz;
             uint32_t device_flags;     /*<! Bitwise OR of SPI_DEVICE_* flags */
-            /**
-             * @brief Set to true if the bus is already initialized. 
-             *        NOTE: This property will be removed in future,
-             *        once when https://github.com/espressif/esp-idf/issues/8745 is resolved
-             * 
-             */
-            bool bus_is_initialized;
+            bool bus_is_initialized; // Set to true if the bus is already initialized. Will be removed in future, once when https://github.com/espressif/esp-idf/issues/8745 is resolved
         } spi;
         struct {
             i2c_port_t port;
@@ -61,7 +48,8 @@ typedef struct {
 typedef enum {
     RC522_EVENT_ANY = ESP_EVENT_ANY_ID,
     RC522_EVENT_NONE,
-    RC522_EVENT_TAG_SCANNED,             /*<! Tag scanned */
+    RC522_EVENT_TAG_REQUESTED,  /*<! Tag requested */
+    RC522_EVENT_TAG_SCANNED,    /*<! Tag scanned */
 } rc522_event_t;
 
 typedef struct {
@@ -69,8 +57,31 @@ typedef struct {
     void* ptr;
 } rc522_event_data_t;
 
+
+typedef enum {
+    TAG_TYPE_NOT_COMPLETE,
+    TAG_TYPE_MIFARE_MINI,
+    TAG_TYPE_MIFARE_1K,
+    TAG_TYPE_MIFARE_4K,
+    TAG_TYPE_MIFARE_UL,
+    TAG_TYPE_MIFARE_PLUS,
+    TAG_TYPE_MIFARE_DESFIRE,
+    TAG_TYPE_TNP3XXX,
+    TAG_TYPE_ISO_14443_4,
+    TAG_TYPE_ISO_18092,
+    TAG_TYPE_NTAG213,
+    TAG_TYPE_NTAG215,
+    TAG_TYPE_NTAG216,
+    TAG_TYPE_UNKNOWN,
+} rc522_tag_type_t;
+
 typedef struct {
-    uint64_t serial_number;
+    uint8_t uid[10];
+    uint8_t uid_len;
+    bool uid_complete;
+    uint8_t sak;
+    uint16_t atqa;
+    rc522_tag_type_t type;
 } rc522_tag_t;
 
 /**
